@@ -11,7 +11,7 @@ namespace CedroRestauranteWS.Controllers
 {
     [Produces("application/json")]
     [Route("api/Restaurantes")]
-    public class RestaurantesController : Controller
+    public class RestaurantesController : ControllerBase
     {
         private readonly IRestauranteRepository _restauranteRepository;
 
@@ -39,6 +39,20 @@ namespace CedroRestauranteWS.Controllers
                 return NotFound();
 
             return Ok(restaurante);
+        }
+
+        //GET: api/Restaurantes?search="restaurante"
+        [HttpGet("search")]
+        public IActionResult FindRestaurantes([FromQuery] string nome = "")
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var restaurantes = _restauranteRepository.Find(r => r.Nome.ToLower().Contains(nome.ToLower()));
+            if (restaurantes.Count() == 0)
+                return NotFound();
+
+            return Ok(restaurantes);
         }
 
         // PUT: api/Restaurantes/5

@@ -12,7 +12,7 @@ namespace CedroRestauranteWS.Controllers
 {
     [Produces("application/json")]
     [Route("api/Pratos")]
-    public class PratosController : Controller
+    public class PratosController : ControllerBase
     {
         private readonly IPratoRepository _pratoRepository;
         private readonly IRestauranteRepository _restauranteRepository;
