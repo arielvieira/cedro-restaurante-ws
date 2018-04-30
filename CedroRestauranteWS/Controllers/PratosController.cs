@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CedroRestauranteWS.Context;
 using CedroRestauranteWS.Models;
 using CedroRestauranteWS.DTO;
+using CedroRestauranteWS.Repositories;
 
 namespace CedroRestauranteWS.Controllers
 {
@@ -15,24 +14,26 @@ namespace CedroRestauranteWS.Controllers
     [Route("api/Pratos")]
     public class PratosController : Controller
     {
-        private readonly RestauranteDbContext _context;
+        private readonly IPratoRepository _pratoRepository;
+        private readonly IRestauranteRepository _restauranteRepository;
 
-        public PratosController(RestauranteDbContext context)
+        public PratosController(IPratoRepository pratoRepository, IRestauranteRepository restauranteRepository)
         {
-            _context = context;
+            _pratoRepository = pratoRepository;
+            _restauranteRepository = restauranteRepository;
         }
 
         // GET: api/Pratos
         [HttpGet]
         public IEnumerable<PratoInfoDTO> GetPratos()
         {
-            List<PratoInfoDTO> pratosDto = _context.Pratos.Include(p => p.Restaurante).Select(prato => new PratoInfoDTO()
+            List<PratoInfoDTO> pratosDto = _pratoRepository.GetAllWithRestaurante().Select(prato => new PratoInfoDTO()
             {
                 Id = prato.Id,
                 Nome = prato.Nome,
                 Preco = prato.Preco,
                 Restaurante = new RestauranteDTO(prato.Restaurante)
-             }).ToList();
+            }).ToList();
             return pratosDto;
         }
 
@@ -41,15 +42,12 @@ namespace CedroRestauranteWS.Controllers
         public async Task<IActionResult> GetPrato([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            var prato = await _context.Pratos.Include(p => p.Restaurante).SingleOrDefaultAsync(m => m.Id == id);
+            var prato = await _pratoRepository.GetWithRestaurante(id);
             if (prato == null)
-            {
                 return NotFound();
-            }
+
             PratoInfoDTO pratoDto = new PratoInfoDTO()
             {
                 Id = prato.Id,
@@ -57,17 +55,13 @@ namespace CedroRestauranteWS.Controllers
                 Preco = prato.Preco,
                 Restaurante = new RestauranteDTO(prato.Restaurante)
             };
-            if (prato == null)
-            {
-                return NotFound();
-            }
 
             return Ok(pratoDto);
         }
 
-        // PUT: api/Pratos/5
+        //PUT: api/Pratos/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPrato([FromRoute] int id, [FromBody] PratoDTO prato)
+        public IActionResult PutPrato([FromRoute] int id, [FromBody] PratoDTO prato)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -75,8 +69,8 @@ namespace CedroRestauranteWS.Controllers
             if (id != prato.Id)
                 return BadRequest();
 
-            var rest = await _context.Restaurantes.SingleOrDefaultAsync(m => m.Id == prato.RestauranteId);
-            if (rest == null)
+            var restaurante = _restauranteRepository.GetById(prato.RestauranteId);
+            if (restaurante == null)
                 return BadRequest();
 
             var newPrato = new Prato
@@ -84,14 +78,12 @@ namespace CedroRestauranteWS.Controllers
                 Id = prato.Id,
                 Nome = prato.Nome,
                 Preco = prato.Preco,
-                Restaurante = rest
+                Restaurante = restaurante
             };
-
-            _context.Entry(newPrato).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                _pratoRepository.Update(newPrato);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -105,53 +97,43 @@ namespace CedroRestauranteWS.Controllers
 
         // POST: api/Pratos
         [HttpPost]
-        public async Task<IActionResult> PostPrato([FromBody] PratoDTO prato)
+        public IActionResult PostPrato([FromBody] PratoDTO prato)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            var rest = await _context.Restaurantes.SingleOrDefaultAsync(m => m.Id == prato.RestauranteId);
-            if (rest == null)
-            {
+
+            var restaurante = _restauranteRepository.GetById(prato.RestauranteId);
+            if (restaurante == null)
                 return BadRequest();
-            }
+
             var newPrato = new Prato
             {
                 Nome = prato.Nome,
                 Preco = prato.Preco,
-                Restaurante = rest
+                Restaurante = restaurante
             };
-            _context.Pratos.Add(newPrato);
-            await _context.SaveChangesAsync();
-
+            _pratoRepository.Add(newPrato);
             return CreatedAtAction("GetPrato", new { id = prato.Id }, newPrato);
         }
 
         // DELETE: api/Pratos/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePrato([FromRoute] int id)
+        public IActionResult DeletePrato([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            var prato = await _context.Pratos.SingleOrDefaultAsync(m => m.Id == id);
+            var prato = _pratoRepository.GetById(id);
             if (prato == null)
-            {
                 return NotFound();
-            }
 
-            _context.Pratos.Remove(prato);
-            await _context.SaveChangesAsync();
-
+            _pratoRepository.Delete(prato);
             return Ok(prato);
         }
 
         private bool PratoExists(int id)
         {
-            return _context.Pratos.Any(e => e.Id == id);
+            return _pratoRepository.GetById(id) != null ? true : false;
         }
     }
 }

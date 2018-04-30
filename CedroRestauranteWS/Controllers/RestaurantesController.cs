@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CedroRestauranteWS.Context;
 using CedroRestauranteWS.Models;
-using CedroRestauranteWS.DTO;
+using CedroRestauranteWS.Repositories;
 
 namespace CedroRestauranteWS.Controllers
 {
@@ -15,69 +13,53 @@ namespace CedroRestauranteWS.Controllers
     [Route("api/Restaurantes")]
     public class RestaurantesController : Controller
     {
-        private readonly RestauranteDbContext _context;
+        private readonly IRestauranteRepository _restauranteRepository;
 
-        public RestaurantesController(RestauranteDbContext context)
+        public RestaurantesController(IRestauranteRepository restauranteRepository)
         {
-            _context = context;
+            _restauranteRepository = restauranteRepository;
         }
 
         // GET: api/Restaurantes
         [HttpGet]
         public IEnumerable<Restaurante> GetRestaurantes()
         {
-            return _context.Restaurantes;
+            return _restauranteRepository.GetAll();
         }
 
-        // GET: api/Restaurantes/5
+        //GET: api/Restaurantes/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRestaurante([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            var restaurante = await _context.Restaurantes.Include(p => p.Pratos).SingleOrDefaultAsync(m => m.Id == id);
-
+            var restaurante = await _restauranteRepository.getWithPratos(id);
             if (restaurante == null)
-            {
                 return NotFound();
-            }
 
             return Ok(restaurante);
         }
 
         // PUT: api/Restaurantes/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRestaurante([FromRoute] int id, [FromBody] Restaurante restaurante)
+        public IActionResult PutRestaurante([FromRoute] int id, [FromBody] Restaurante restaurante)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != restaurante.Id)
-            {
                 return BadRequest();
-            }
-
-            _context.Entry(restaurante).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                _restauranteRepository.Update(restaurante);
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!RestauranteExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -85,43 +67,35 @@ namespace CedroRestauranteWS.Controllers
 
         // POST: api/Restaurantes
         [HttpPost]
-        public async Task<IActionResult> PostRestaurante([FromBody] Restaurante restaurante)
+        public IActionResult PostRestaurante([FromBody] Restaurante restaurante)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            _context.Restaurantes.Add(restaurante);
-            await _context.SaveChangesAsync();
+            restaurante.Id = 0;
+            _restauranteRepository.Add(restaurante);
 
             return CreatedAtAction("GetRestaurante", new { id = restaurante.Id }, restaurante);
         }
 
         // DELETE: api/Restaurantes/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRestaurante([FromRoute] int id)
+        public IActionResult DeleteRestaurante([FromRoute] int id)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            var restaurante = await _context.Restaurantes.SingleOrDefaultAsync(m => m.Id == id);
+            var restaurante = _restauranteRepository.GetById(id);
             if (restaurante == null)
-            {
                 return NotFound();
-            }
 
-            _context.Restaurantes.Remove(restaurante);
-            await _context.SaveChangesAsync();
-
+            _restauranteRepository.Delete(restaurante);
             return Ok(restaurante);
         }
 
         private bool RestauranteExists(int id)
         {
-            return _context.Restaurantes.Any(e => e.Id == id);
+            return _restauranteRepository.GetById(id) != null ? true : false;
         }
     }
 }

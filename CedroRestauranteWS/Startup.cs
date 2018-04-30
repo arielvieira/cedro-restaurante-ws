@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CedroRestauranteWS.Context;
+using CedroRestauranteWS.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -26,11 +27,14 @@ namespace CedroRestauranteWS
         {
             services.AddDbContext<RestauranteDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddTransient<IPratoRepository, PratoRepository>();
+
+            services.AddTransient<IRestauranteRepository, RestauranteRepository>();
+
             services
                 .AddMvc()
                 .AddJsonOptions(options =>
                 {
-                     //options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                      options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                      options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
