@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CedroRestauranteWS.Context;
 using CedroRestauranteWS.Models;
+using CedroRestauranteWS.DTO;
 
 namespace CedroRestauranteWS.Controllers
 {
@@ -37,7 +38,7 @@ namespace CedroRestauranteWS.Controllers
                 return BadRequest(ModelState);
             }
 
-            var restaurante = await _context.Restaurantes.SingleOrDefaultAsync(m => m.Id == id);
+            var restaurante = await _context.Restaurantes.Include(p => p.Pratos).SingleOrDefaultAsync(m => m.Id == id);
 
             if (restaurante == null)
             {

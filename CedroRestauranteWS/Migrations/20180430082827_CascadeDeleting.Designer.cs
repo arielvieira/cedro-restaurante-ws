@@ -11,9 +11,10 @@ using System;
 namespace CedroRestauranteWS.Migrations
 {
     [DbContext(typeof(RestauranteDbContext))]
-    partial class RestauranteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180430082827_CascadeDeleting")]
+    partial class CascadeDeleting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

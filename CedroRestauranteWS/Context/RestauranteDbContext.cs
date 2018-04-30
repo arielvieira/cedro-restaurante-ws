@@ -13,5 +13,13 @@ namespace CedroRestauranteWS.Context
 
         public DbSet<Restaurante> Restaurantes { get; set; }
         public DbSet<Prato> Pratos { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Restaurante>()
+                .HasMany(r => r.Pratos)
+                .WithOne(p => p.Restaurante)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

@@ -1,19 +1,22 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CedroRestauranteWS.Models
+namespace CedroRestauranteWS.DTO
 {
-    public class Restaurante
+    public class PratoInfoDTO
     {
         public int Id { get; set; }
 
         [Required]
         public string Nome { get; set; }
 
-        public IList<Prato> Pratos { get; set; }
+        [Required]
+        [Range(0, double.MaxValue)]
+        public double Preco { get; set; }
+
+        public RestauranteDTO Restaurante { get; set; }
     }
 }

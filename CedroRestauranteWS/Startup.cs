@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace CedroRestauranteWS
 {
@@ -25,7 +26,14 @@ namespace CedroRestauranteWS
         {
             services.AddDbContext<RestauranteDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddMvc();
+            services
+                .AddMvc()
+                .AddJsonOptions(options =>
+                {
+                     //options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CedroRestauranteWS.Context;
 using CedroRestauranteWS.Models;
+using CedroRestauranteWS.DTO;
 
 namespace CedroRestauranteWS.Controllers
 {
@@ -23,9 +24,16 @@ namespace CedroRestauranteWS.Controllers
 
         // GET: api/Pratos
         [HttpGet]
-        public IEnumerable<Prato> GetPratos()
+        public IEnumerable<PratoInfoDTO> GetPratos()
         {
-            return _context.Pratos;
+            List<PratoInfoDTO> pratosDto = _context.Pratos.Include(p => p.Restaurante).Select(prato => new PratoInfoDTO()
+            {
+                Id = prato.Id,
+                Nome = prato.Nome,
+                Preco = prato.Preco,
+                Restaurante = new RestauranteDTO(prato.Restaurante)
+             }).ToList();
+            return pratosDto;
         }
 
         // GET: api/Pratos/5
@@ -37,31 +45,49 @@ namespace CedroRestauranteWS.Controllers
                 return BadRequest(ModelState);
             }
 
-            var prato = await _context.Pratos.SingleOrDefaultAsync(m => m.Id == id);
-
+            var prato = await _context.Pratos.Include(p => p.Restaurante).SingleOrDefaultAsync(m => m.Id == id);
+            if (prato == null)
+            {
+                return NotFound();
+            }
+            PratoInfoDTO pratoDto = new PratoInfoDTO()
+            {
+                Id = prato.Id,
+                Nome = prato.Nome,
+                Preco = prato.Preco,
+                Restaurante = new RestauranteDTO(prato.Restaurante)
+            };
             if (prato == null)
             {
                 return NotFound();
             }
 
-            return Ok(prato);
+            return Ok(pratoDto);
         }
 
         // PUT: api/Pratos/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPrato([FromRoute] int id, [FromBody] Prato prato)
+        public async Task<IActionResult> PutPrato([FromRoute] int id, [FromBody] PratoDTO prato)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (id != prato.Id)
-            {
                 return BadRequest();
-            }
 
-            _context.Entry(prato).State = EntityState.Modified;
+            var rest = await _context.Restaurantes.SingleOrDefaultAsync(m => m.Id == prato.RestauranteId);
+            if (rest == null)
+                return BadRequest();
+
+            var newPrato = new Prato
+            {
+                Id = prato.Id,
+                Nome = prato.Nome,
+                Preco = prato.Preco,
+                Restaurante = rest
+            };
+
+            _context.Entry(newPrato).State = EntityState.Modified;
 
             try
             {
@@ -70,13 +96,8 @@ namespace CedroRestauranteWS.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!PratoExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -84,17 +105,27 @@ namespace CedroRestauranteWS.Controllers
 
         // POST: api/Pratos
         [HttpPost]
-        public async Task<IActionResult> PostPrato([FromBody] Prato prato)
+        public async Task<IActionResult> PostPrato([FromBody] PratoDTO prato)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            _context.Pratos.Add(prato);
+            var rest = await _context.Restaurantes.SingleOrDefaultAsync(m => m.Id == prato.RestauranteId);
+            if (rest == null)
+            {
+                return BadRequest();
+            }
+            var newPrato = new Prato
+            {
+                Nome = prato.Nome,
+                Preco = prato.Preco,
+                Restaurante = rest
+            };
+            _context.Pratos.Add(newPrato);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPrato", new { id = prato.Id }, prato);
+            return CreatedAtAction("GetPrato", new { id = prato.Id }, newPrato);
         }
 
         // DELETE: api/Pratos/5
