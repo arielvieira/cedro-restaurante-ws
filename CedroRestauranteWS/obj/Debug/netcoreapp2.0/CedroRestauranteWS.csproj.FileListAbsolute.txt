@@ -1,11 +1,10 @@
+C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.csproj.CoreCompileInputs.cache
+C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.AssemblyInfoInputs.cache
+C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.AssemblyInfo.cs
 C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\bin\Debug\netcoreapp2.0\CedroRestauranteWS.deps.json
 C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\bin\Debug\netcoreapp2.0\CedroRestauranteWS.runtimeconfig.json
 C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\bin\Debug\netcoreapp2.0\CedroRestauranteWS.runtimeconfig.dev.json
 C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\bin\Debug\netcoreapp2.0\CedroRestauranteWS.dll
 C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\bin\Debug\netcoreapp2.0\CedroRestauranteWS.pdb
-C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.csproj.CoreCompileInputs.cache
-C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.AssemblyInfoInputs.cache
-C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.AssemblyInfo.cs
 C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.dll
 C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.pdb
-C:\Users\Ariel\source\repos\CedroRestauranteWS\CedroRestauranteWS\obj\Debug\netcoreapp2.0\CedroRestauranteWS.csprojResolveAssemblyReference.cache
