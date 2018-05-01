@@ -43,15 +43,14 @@ namespace CedroRestauranteWS.Controllers
 
         //GET: api/Restaurantes?search="restaurante"
         [HttpGet("search")]
-        public IActionResult FindRestaurantes([FromQuery] string nome = "")
+        public IActionResult FindRestaurantes([FromQuery] string nome)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            if (nome == null)
+                return Ok(_restauranteRepository.GetAll());
 
             var restaurantes = _restauranteRepository.Find(r => r.Nome.ToLower().Contains(nome.ToLower()));
-            if (restaurantes.Count() == 0)
-                return NotFound();
-
             return Ok(restaurantes);
         }
 
